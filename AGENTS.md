@@ -36,6 +36,13 @@ A ordem de trabalho esperada é:
 
 Em Codex CLI com skills mode, os comandos podem aparecer no formato `$speckit-*`, por exemplo `$speckit-implement`. Use o formato disponível no ambiente atual.
 
+Quando o ambiente oferecer seleção de modo pela UI, respeitar a seleção do usuário. Se o usuário não selecionar modo, aplicar automaticamente esta postura:
+
+- `/speckit.constitution`, `$speckit-constitution`, `/speckit.specify`, `$speckit-specify`, `/speckit.plan`, `$speckit-plan`, `/speckit.tasks` e `$speckit-tasks`: agir em modo planejamento. Antes de alterar artefatos, ler `AGENTS.md`, `.specify/memory/constitution.md` e artefatos existentes da feature ativa; identificar decisões pendentes, riscos e contratos sensíveis; não implementar código.
+- `/speckit.clarify` e `$speckit-clarify`: agir em planejamento leve quando houver ambiguidade relevante; fazer perguntas objetivas e registrar respostas na spec quando aplicável.
+- `/speckit.checklist`, `$speckit-checklist`, `/speckit.analyze` e `$speckit-analyze`: agir em modo normal, salvo se a solicitação pedir análise mais profunda.
+- `/speckit.implement` e `$speckit-implement`: agir em modo meta mesmo que o usuário esqueça de selecionar esse modo na UI. Manter o objetivo de implementação ativo até concluir todas as tarefas aplicáveis de `tasks.md`, revisar o diff, executar validações possíveis, atualizar tarefas/artefatos quando o fluxo exigir e reportar pendências de hardware real. Não considerar pronto sem evidência atual.
+
 Durante fases de especificação, planejamento ou geração de tarefas, não implementar código.
 
 Durante `/speckit.implement` ou `$speckit-implement`, seguir estritamente os arquivos gerados pelo Spec Kit, especialmente:

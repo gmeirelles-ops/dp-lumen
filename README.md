@@ -88,6 +88,31 @@ Também usa ESP-ADF. Codec, I2S, sample rate, board config, pipeline e ordem dos
 
 O agente deve atualizar `.specify/memory/constitution.md` e, se necessário, ajustar `AGENTS.md`.
 
+## Modos De Trabalho Com Spec Kit
+
+Quando o ambiente oferecer seleção de modo pela UI, prefira selecionar o modo antes de enviar o comando Spec Kit. A seleção pela UI é mais forte que uma instrução em texto porque pode persistir objetivo, planejamento ou regras extras entre turnos.
+
+Use esta regra prática:
+
+| Comando | Modo recomendado |
+|---|---|
+| `$speckit-constitution` | Planejamento |
+| `$speckit-specify` | Planejamento |
+| `$speckit-clarify` | Planejamento leve quando houver ambiguidade relevante |
+| `$speckit-checklist` | Normal |
+| `$speckit-plan` | Planejamento |
+| `$speckit-tasks` | Planejamento |
+| `$speckit-analyze` | Normal |
+| `$speckit-implement` | Meta |
+
+No Cursor, use os mesmos critérios trocando `$speckit-*` por `/speckit-*`.
+
+Use **modo planejamento** para fases que tomam decisões ou produzem artefatos de projeto. Durante planejamento, o agente deve entender contexto, riscos, contratos sensíveis e decisões pendentes antes de escrever spec, plano ou tarefas. Não deve implementar código.
+
+Use **modo meta** principalmente em `$speckit-implement`, quando a implementação for longa ou sensível. O objetivo é evitar encerramento cedo demais: o agente deve manter a implementação ativa até concluir as tarefas, revisar o diff, validar o que for possível e reportar pendências.
+
+Se você esquecer de selecionar o modo pela UI, o fallback automático fica em `AGENTS.md`: durante `$speckit-implement`, o agente deve agir em modo meta; durante spec, plano e tasks, deve agir em modo planejamento.
+
 ## Fluxo Para Adicionar Um Recurso Ao Firmware
 
 Use este fluxo para novos recursos: Wi-Fi, BLE/Blufi, MQTT, OTA, NVS, sensores, drivers, comandos remotos, diagnóstico, áudio, etc.
