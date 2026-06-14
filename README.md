@@ -1,16 +1,18 @@
 # ESP32 Firmware Template
 
-Template para criar projetos ESP32-family com ESP-IDF, opção de ESP-ADF, GitHub Spec Kit e skills locais para Codex.
+Template para criar projetos ESP32-family com ESP-IDF, opção de ESP-ADF, GitHub Spec Kit e skills locais para Codex e Cursor.
 
-A ideia deste template é simples: você conduz o projeto pelos comandos do Spec Kit; o Codex executa inspeção, Git, geração de arquivos, build e validações. Você não precisa operar manualmente os scripts `.specify/`, comandos Git ou `idf.py`, salvo quando quiser conferir algo por conta própria.
+A ideia deste template é simples: você conduz o projeto pelos comandos do Spec Kit; o agente no Codex ou no Cursor executa inspeção, Git, geração de arquivos, build e validações. Você não precisa operar manualmente os scripts `.specify/`, comandos Git ou `idf.py`, salvo quando quiser conferir algo por conta própria.
 
 ## O Que Vem Pronto
 
 - `AGENTS.md`: regras de segurança, arquitetura, diagnóstico e validação para firmware ESP32.
-- `$esp-idf`: skill local para ESP-IDF.
-- `$esp-adf`: skill local para ESP-ADF/audio.
-- `$speckit-*`: skills locais do GitHub Spec Kit.
+- `$esp-idf` e `/esp-idf`: skill local para ESP-IDF.
+- `$esp-adf` e `/esp-adf`: skill local para ESP-ADF/audio.
+- `$speckit-*` no Codex e `/speckit-*` no Cursor: skills locais do GitHub Spec Kit.
 - `.specify/`: infraestrutura Spec Kit, constituição, templates e scripts.
+- `.agents/skills/`: skills para Codex.
+- `.cursor/skills/` e `.cursor/rules/`: skills e regras para Cursor.
 - Scripts Spec Kit para Linux/macOS/WSL/Git Bash e Windows PowerShell.
 - `.gitignore` e `.gitattributes` para um template portável entre Windows, Linux e macOS.
 
@@ -23,7 +25,7 @@ Você faz:
 - aprova decisões de requisito, hardware, protocolo e arquitetura;
 - pede commit/push quando quiser publicar.
 
-O Codex faz:
+O agente no Codex ou Cursor faz:
 
 - lê `AGENTS.md`, constituição, spec, plano, tarefas e código;
 - executa comandos Git necessários;
@@ -35,7 +37,7 @@ O Codex faz:
 
 ## Criar Um Projeto A Partir Do Template
 
-Abra uma conversa com Codex no diretório onde você quer trabalhar e diga:
+Abra uma conversa no Codex ou no Cursor no diretório onde você quer trabalhar e diga:
 
 ```text
 Crie um novo projeto a partir do template https://github.com/diponto/esp32-template.git.
@@ -45,7 +47,7 @@ Prepare para ESP-IDF, target esp32s3.
 Não implemente firmware ainda.
 ```
 
-O Codex deve:
+O agente deve:
 
 - clonar ou copiar o template;
 - configurar o remoto do novo projeto;
@@ -55,6 +57,8 @@ O Codex deve:
 - preparar ou orientar a estrutura mínima do projeto;
 - atualizar a constituição quando você aprovar;
 - commitar/pushar se você pedir.
+
+No Cursor, abra o repositório na IDE e use os mesmos pedidos em chat, trocando comandos `$speckit-*` por `/speckit-*`. O arquivo `.cursor/rules/specify-rules.mdc` aponta para `AGENTS.md`, então as mesmas regras de ESP32, segurança, arquitetura e validação continuam valendo.
 
 Se o projeto for de áudio, diga também:
 
@@ -82,7 +86,7 @@ Para áudio:
 Também usa ESP-ADF. Codec, I2S, sample rate, board config, pipeline e ordem dos elementos são contratos de hardware e não podem mudar sem decisão explícita.
 ```
 
-O Codex deve atualizar `.specify/memory/constitution.md` e, se necessário, ajustar `AGENTS.md`.
+O agente deve atualizar `.specify/memory/constitution.md` e, se necessário, ajustar `AGENTS.md`.
 
 ## Fluxo Para Adicionar Um Recurso Ao Firmware
 
@@ -106,7 +110,7 @@ Adicionar leitura de sensor I2C de temperatura. O firmware deve publicar a tempe
 $speckit-clarify
 ```
 
-Responda às perguntas do Codex. Para firmware, esclareça principalmente:
+Responda às perguntas do agente. Para firmware, esclareça principalmente:
 
 - pinagem;
 - frequência I2C/SPI/UART;
@@ -151,7 +155,7 @@ O plano deve declarar:
 $speckit-tasks
 ```
 
-As tarefas devem ser pequenas, ordenadas e específicas por arquivo. Se aparecer tarefa vaga, peça ao Codex para dividir.
+As tarefas devem ser pequenas, ordenadas e específicas por arquivo. Se aparecer tarefa vaga, peça ao agente para dividir.
 
 ### 6. Implementar
 
@@ -159,7 +163,7 @@ As tarefas devem ser pequenas, ordenadas e específicas por arquivo. Se aparecer
 $speckit-implement
 ```
 
-O Codex deve implementar somente o que está em `tasks.md`, rodar validações possíveis e reportar:
+O agente deve implementar somente o que está em `tasks.md`, rodar validações possíveis e reportar:
 
 - arquivos alterados;
 - comandos executados;
@@ -198,7 +202,7 @@ $speckit-tasks
 $speckit-implement
 ```
 
-O Codex deve mapear o código existente, encontrar contratos sensíveis, implementar a menor alteração correta e rodar `idf.py build`.
+O agente deve mapear o código existente, encontrar contratos sensíveis, implementar a menor alteração correta e rodar `idf.py build`.
 
 ## Fluxo Para Refatorar Um Projeto Existente
 
@@ -288,22 +292,22 @@ Faça commit e push apenas das alterações do README.
 Mensagem: docs: simplify template workflow
 ```
 
-O Codex deve revisar `git status`, evitar incluir arquivos fora do escopo, commitar, pushar e informar o hash.
+O agente deve revisar `git status`, evitar incluir arquivos fora do escopo, commitar, pushar e informar o hash.
 
 ## Validação Esperada
 
-O Codex deve rodar:
+O agente deve rodar:
 
 - `git diff --check` para alterações de texto/código;
 - `idf.py build` para alterações de firmware;
 - `idf.py size` quando tamanho, memória, partição, OTA ou áudio forem afetados;
 - validações específicas de scripts ou skills quando o template for alterado.
 
-Se alguma validação não puder ser executada, o Codex deve dizer o motivo.
+Se alguma validação não puder ser executada, o agente deve dizer o motivo.
 
 ## Operações Que Exigem Pedido Explícito
 
-O Codex não deve executar sem autorização clara:
+O agente não deve executar sem autorização clara:
 
 ```text
 idf.py flash
@@ -326,10 +330,10 @@ Também não deve alterar sem spec/plano/tarefas:
 
 ## Atualizar O Spec Kit Do Template
 
-Peça ao Codex:
+Peça ao agente:
 
 ```text
 Atualize o GitHub Spec Kit deste template, preserve suporte Windows/Linux/macOS e valide as skills.
 ```
 
-O Codex deve usar o inicializador oficial do Spec Kit, revisar o diff, preservar scripts Bash e PowerShell, ajustar skills se necessário, validar e só então commitar/pushar quando solicitado.
+O agente deve usar o inicializador oficial do Spec Kit, revisar o diff, preservar scripts Bash e PowerShell, ajustar skills se necessário, validar e só então commitar/pushar quando solicitado.

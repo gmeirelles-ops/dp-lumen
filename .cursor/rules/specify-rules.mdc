@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+
+Read `AGENTS.md` before planning or editing. It is the project policy for ESP32 firmware, ESP-IDF/ESP-ADF, Spec Kit workflow, hardware contracts, diagnostics and validation.
+
+In Cursor, use `/speckit-*` commands for Spec Kit phases. Preserve compatibility with Codex skills in `.agents/skills/`.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
