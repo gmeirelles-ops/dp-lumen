@@ -1,97 +1,335 @@
 # ESP32 Firmware Template
 
-Template para projetos ESP32-family com ESP-IDF, opção de ESP-ADF, GitHub Spec Kit e skills locais para Codex.
+Template para criar projetos ESP32-family com ESP-IDF, opção de ESP-ADF, GitHub Spec Kit e skills locais para Codex.
+
+A ideia deste template é simples: você conduz o projeto pelos comandos do Spec Kit; o Codex executa inspeção, Git, geração de arquivos, build e validações. Você não precisa operar manualmente os scripts `.specify/`, comandos Git ou `idf.py`, salvo quando quiser conferir algo por conta própria.
 
 ## O Que Vem Pronto
 
-- `AGENTS.md` com regras de arquitetura, segurança, diagnóstico e validação para firmware ESP32.
-- Skills locais em `.agents/skills/`:
-  - `$esp-idf` para firmware ESP-IDF geral.
-  - `$esp-adf` para áudio com ESP-ADF.
-  - `$speckit-*` para o fluxo GitHub Spec Kit.
-- Infraestrutura Spec Kit em `.specify/`.
-- Scripts Spec Kit para macOS/Linux/WSL/Git Bash e para Windows PowerShell.
+- `AGENTS.md`: regras de segurança, arquitetura, diagnóstico e validação para firmware ESP32.
+- `$esp-idf`: skill local para ESP-IDF.
+- `$esp-adf`: skill local para ESP-ADF/audio.
+- `$speckit-*`: skills locais do GitHub Spec Kit.
+- `.specify/`: infraestrutura Spec Kit, constituição, templates e scripts.
+- Scripts Spec Kit para Linux/macOS/WSL/Git Bash e Windows PowerShell.
+- `.gitignore` e `.gitattributes` para um template portável entre Windows, Linux e macOS.
 
-## Pré-Requisitos
+## Responsabilidades
 
-- Git.
-- Python 3.11 ou superior para o Specify CLI.
-- `uv`/`uvx` para rodar o Spec Kit sem instalação global.
-- ESP-IDF instalado e exportado conforme o sistema operacional.
-- ESP-ADF apenas quando o projeto usar áudio.
+Você faz:
 
-## Spec Kit
+- descreve o objetivo;
+- responde perguntas de esclarecimento;
+- aprova decisões de requisito, hardware, protocolo e arquitetura;
+- pede commit/push quando quiser publicar.
 
-Este template já foi inicializado com:
+O Codex faz:
 
-```bash
-uvx --from git+https://github.com/github/spec-kit.git specify init --here --force --integration codex --integration-options="--skills" --script sh --ignore-agent-tools
-```
+- lê `AGENTS.md`, constituição, spec, plano, tarefas e código;
+- executa comandos Git necessários;
+- cria ou altera arquivos;
+- roda scripts Spec Kit auxiliares;
+- roda `idf.py build` e `idf.py size` quando aplicável;
+- informa claramente quando algo não puder ser validado;
+- nunca roda `idf.py flash`, `idf.py erase_flash` ou operação destrutiva em hardware sem pedido explícito.
 
-Os scripts de automação foram mantidos nos dois formatos:
+## Criar Um Projeto A Partir Do Template
+
+Abra uma conversa com Codex no diretório onde você quer trabalhar e diga:
 
 ```text
-.specify/scripts/bash/        # Linux, macOS, WSL ou Git Bash
-.specify/scripts/powershell/  # Windows PowerShell
+Crie um novo projeto a partir do template https://github.com/diponto/esp32-template.git.
+Nome do projeto: meu-firmware-esp32.
+Novo remoto: git@github.com:diponto/meu-firmware-esp32.git.
+Prepare para ESP-IDF, target esp32s3.
+Não implemente firmware ainda.
 ```
 
-Exemplos de verificação:
+O Codex deve:
 
-```bash
-.specify/scripts/bash/check-prerequisites.sh --help
+- clonar ou copiar o template;
+- configurar o remoto do novo projeto;
+- criar branch inicial;
+- verificar Spec Kit;
+- verificar ESP-IDF;
+- preparar ou orientar a estrutura mínima do projeto;
+- atualizar a constituição quando você aprovar;
+- commitar/pushar se você pedir.
+
+Se o projeto for de áudio, diga também:
+
+```text
+Este projeto usa ESP-ADF. Preparar o fluxo considerando codec, I2S, board config, pipeline de áudio e validação em hardware real.
 ```
 
-```powershell
-.\.specify\scripts\powershell\check-prerequisites.ps1 -Help
-```
+## Preparar A Constituição Do Projeto
 
-Fluxo recomendado no Codex:
+Primeiro comando Spec Kit recomendado:
 
 ```text
 $speckit-constitution
+```
+
+Informe as decisões iniciais. Exemplo:
+
+```text
+Este projeto usa ESP-IDF com target esp32s3, hardware customizado, Wi-Fi, MQTT/TLS, OTA e NVS. Deve manter compatibilidade com dispositivos provisionados. Pinagem, partição, NVS, tópicos MQTT, TLS e OTA só podem mudar com spec, plano e tarefas explícitos. Build obrigatório com idf.py build. Não fazer flash sem autorização.
+```
+
+Para áudio:
+
+```text
+Também usa ESP-ADF. Codec, I2S, sample rate, board config, pipeline e ordem dos elementos são contratos de hardware e não podem mudar sem decisão explícita.
+```
+
+O Codex deve atualizar `.specify/memory/constitution.md` e, se necessário, ajustar `AGENTS.md`.
+
+## Fluxo Para Adicionar Um Recurso Ao Firmware
+
+Use este fluxo para novos recursos: Wi-Fi, BLE/Blufi, MQTT, OTA, NVS, sensores, drivers, comandos remotos, diagnóstico, áudio, etc.
+
+### 1. Especificar
+
+```text
 $speckit-specify
+```
+
+Descreva o recurso pelo comportamento esperado, não pela implementação. Exemplo:
+
+```text
+Adicionar leitura de sensor I2C de temperatura. O firmware deve publicar a temperatura no MQTT a cada 60 segundos, preservar tópicos existentes, validar falhas de I2C, gerar diagnóstico estruturado e não alterar pinagem sem decisão explícita.
+```
+
+### 2. Esclarecer
+
+```text
 $speckit-clarify
+```
+
+Responda às perguntas do Codex. Para firmware, esclareça principalmente:
+
+- pinagem;
+- frequência I2C/SPI/UART;
+- NVS namespace/chaves;
+- tópicos e payloads MQTT;
+- QoS, retain, LWT e keepalive;
+- comportamento offline;
+- diagnóstico esperado;
+- validação em hardware real.
+
+### 3. Checklist
+
+```text
 $speckit-checklist
+```
+
+Peça uma checklist adequada ao risco. Exemplo:
+
+```text
+Gerar checklist para requisitos de firmware ESP-IDF, compatibilidade NVS/MQTT, diagnóstico de campo e validação em hardware real.
+```
+
+### 4. Planejar
+
+```text
+$speckit-plan
+```
+
+O plano deve declarar:
+
+- componentes ESP-IDF/ESP-ADF afetados;
+- fronteiras de arquitetura;
+- tasks FreeRTOS, filas, timers ou event groups;
+- impactos em NVS, MQTT, OTA, TLS, pinagem ou partições;
+- logs e diagnósticos;
+- estratégia de teste;
+- validação em hardware.
+
+### 5. Gerar Tarefas
+
+```text
+$speckit-tasks
+```
+
+As tarefas devem ser pequenas, ordenadas e específicas por arquivo. Se aparecer tarefa vaga, peça ao Codex para dividir.
+
+### 6. Implementar
+
+```text
+$speckit-implement
+```
+
+O Codex deve implementar somente o que está em `tasks.md`, rodar validações possíveis e reportar:
+
+- arquivos alterados;
+- comandos executados;
+- resultado do build/testes;
+- riscos restantes;
+- validação em hardware pendente.
+
+## Fluxo Para Editar Um Recurso Existente
+
+Use para alterar comportamento já existente: reconexão Wi-Fi, retry MQTT, payload, regra de domínio, diagnóstico, storage, OTA, driver, etc.
+
+Comando inicial:
+
+```text
+$speckit-specify
+```
+
+Descreva três coisas:
+
+- comportamento atual;
+- comportamento desejado;
+- contratos que não podem mudar.
+
+Exemplo:
+
+```text
+Editar o recurso MQTT existente para publicar diagnóstico de falha de Wi-Fi. Preservar tópicos existentes, payloads atuais, QoS, retain, LWT, keepalive e compatibilidade com dispositivos já provisionados. Se for necessário novo payload, documentar versionamento e migração antes de implementar.
+```
+
+Depois siga:
+
+```text
+$speckit-clarify
 $speckit-plan
 $speckit-tasks
 $speckit-implement
 ```
 
-Durante fases de especificação, planejamento e geração de tarefas, não implemente código. Durante implementação, siga `spec.md`, `plan.md` e `tasks.md`.
+O Codex deve mapear o código existente, encontrar contratos sensíveis, implementar a menor alteração correta e rodar `idf.py build`.
 
-## ESP-IDF
+## Fluxo Para Refatorar Um Projeto Existente
 
-Depois de criar um projeto derivado deste template, defina explicitamente:
+Use para melhorar arquitetura sem mudar comportamento externo.
 
-- target ESP32 (`esp32`, `esp32s3`, `esp32c3`, etc.)
-- versão ESP-IDF
-- pinagem e board revision
-- partição/OTA
-- NVS schema
-- Wi-Fi/BLE/Blufi/MQTT/TLS
-- diagnósticos esperados pelo app/backend
-- configurações ESP-ADF quando áudio for usado
+Comando inicial:
 
-Build padrão:
-
-```bash
-idf.py build
+```text
+$speckit-specify
 ```
 
-Quando tamanho de firmware, memória, partição, OTA ou áudio forem afetados:
+Descreva a refatoração como preservação de comportamento:
 
-```bash
-idf.py size
+```text
+Refatorar o firmware existente sem alterar comportamento externo. Preservar pinagem, partições, NVS, tópicos MQTT, payloads, QoS, TLS, OTA e provisionamento. Separar callbacks de Wi-Fi/MQTT/NVS/GPIO em componentes menores, mantendo build verde e logs equivalentes ou melhores.
 ```
 
-Não rode `idf.py flash`, `idf.py erase_flash` ou operações destrutivas de NVS em hardware real sem solicitação explícita.
+Depois siga:
 
-## Atualizando O Spec Kit
-
-Para consultar a versão disponível:
-
-```bash
-uvx --from git+https://github.com/github/spec-kit.git specify version
+```text
+$speckit-clarify
+$speckit-plan
+$speckit-tasks
+$speckit-implement
 ```
 
-Para atualizar a infraestrutura do template, faça em uma branch separada e revise o diff. O template mantém ajustes cross-platform nas skills do Spec Kit, então preserve as referências a Bash e PowerShell antes de publicar.
+Boas refatorações para pedir:
+
+- extrair parsing para `protocol`;
+- isolar NVS em `storage`;
+- isolar GPIO/sensores em `drivers`;
+- mover lógica pesada de callbacks para tasks;
+- tornar state machines explícitas;
+- substituir `sprintf` por `snprintf`;
+- melhorar logs e diagnósticos;
+- reduzir acoplamento sem criar abstrações vazias.
+
+Não misture refatoração com mudança funcional sem explicitar isso na spec.
+
+## Fluxo Para Áudio ESP-ADF
+
+Quando envolver áudio, comece declarando:
+
+```text
+$esp-adf
+```
+
+Depois use o fluxo Spec Kit:
+
+```text
+$speckit-specify
+$speckit-clarify
+$speckit-plan
+$speckit-tasks
+$speckit-implement
+```
+
+Na especificação de áudio, declare:
+
+- fonte de áudio;
+- destino de áudio;
+- codec;
+- board;
+- MCLK, BCLK, LRCLK/WS, DIN e DOUT;
+- PA enable, mute e reset;
+- sample rate, bits e canais;
+- comportamento play/pause/resume/stop;
+- comportamento offline;
+- falhas de rede, decoder, I2S e codec;
+- estratégia de cleanup/restart;
+- validação em hardware real.
+
+Não altere codec, I2S, board config, pipeline ou ordem dos elementos apenas para compilar.
+
+## Pedir Commit E Push
+
+Quando quiser publicar:
+
+```text
+Faça commit e push das alterações.
+```
+
+Ou seja mais específico:
+
+```text
+Faça commit e push apenas das alterações do README.
+Mensagem: docs: simplify template workflow
+```
+
+O Codex deve revisar `git status`, evitar incluir arquivos fora do escopo, commitar, pushar e informar o hash.
+
+## Validação Esperada
+
+O Codex deve rodar:
+
+- `git diff --check` para alterações de texto/código;
+- `idf.py build` para alterações de firmware;
+- `idf.py size` quando tamanho, memória, partição, OTA ou áudio forem afetados;
+- validações específicas de scripts ou skills quando o template for alterado.
+
+Se alguma validação não puder ser executada, o Codex deve dizer o motivo.
+
+## Operações Que Exigem Pedido Explícito
+
+O Codex não deve executar sem autorização clara:
+
+```text
+idf.py flash
+idf.py erase_flash
+operações destrutivas de NVS
+alterações destrutivas em dispositivo real
+```
+
+Também não deve alterar sem spec/plano/tarefas:
+
+- pinagem GPIO;
+- função elétrica dos pinos;
+- tabela de partições;
+- layout e chaves NVS;
+- tópicos/payloads MQTT;
+- QoS, retain, LWT ou keepalive;
+- TLS, certificados, chaves ou credenciais;
+- estratégia OTA;
+- codec, I2S, board config ou pipeline de áudio.
+
+## Atualizar O Spec Kit Do Template
+
+Peça ao Codex:
+
+```text
+Atualize o GitHub Spec Kit deste template, preserve suporte Windows/Linux/macOS e valide as skills.
+```
+
+O Codex deve usar o inicializador oficial do Spec Kit, revisar o diff, preservar scripts Bash e PowerShell, ajustar skills se necessário, validar e só então commitar/pushar quando solicitado.
