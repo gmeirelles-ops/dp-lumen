@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESP-IDF Firmware"
+  short_description: "ESP32 firmware, connectivity and diagnostics"
+  default_prompt: "Use $esp-idf to implement this ESP-IDF firmware task with safe diagnostics and build validation."

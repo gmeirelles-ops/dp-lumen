@@ -1,0 +1,4 @@
+interface:
+  display_name: "ESP-ADF Audio Firmware"
+  short_description: "ESP32 audio pipelines and board diagnostics"
+  default_prompt: "Use $esp-adf to work on this ESP-ADF audio pipeline with hardware-safe validation."
