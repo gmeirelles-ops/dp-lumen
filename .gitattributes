@@ -1,0 +1,28 @@
+* text=auto
+
+# Keep automation scripts portable and executable-friendly.
+*.sh text eol=lf
+*.ps1 text eol=lf
+
+# Keep project text files stable across Windows, Linux and macOS.
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.cpp text eol=lf
+*.hpp text eol=lf
+
+# Binary firmware/assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.pdf binary
+*.bin binary
+*.elf binary
+*.uf2 binary

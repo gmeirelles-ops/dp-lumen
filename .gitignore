@@ -1,0 +1,43 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# Python/Spec Kit local caches
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# ESP-IDF build artifacts
+build/
+managed_components/
+sdkconfig
+sdkconfig.old
+*.elf
+*.bin
+*.map
+*.uf2
+*.hex
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+secrets/
+private/
+*.key
+*.p12
+*.pfx
+*_private.pem
+private*.pem
+credentials*.pem
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak

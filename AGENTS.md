@@ -19,6 +19,11 @@ Quando a tarefa envolver áudio e conectividade, use `$esp-adf` para a arquitetu
 
 Este projeto usa GitHub Spec Kit.
 
+Este template versiona a infraestrutura do Spec Kit em `.specify/` e as skills em `.agents/skills/speckit-*`. Os scripts estão disponíveis em dois formatos:
+
+- `.specify/scripts/bash/` para Linux, macOS, WSL ou Git Bash.
+- `.specify/scripts/powershell/` para Windows PowerShell.
+
 A ordem de trabalho esperada é:
 
 1. `/speckit.constitution`
@@ -785,3 +790,8 @@ Ao terminar uma alteração, responder com:
 - resultado do build/testes
 - riscos restantes
 - pontos que exigem teste em hardware real
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
