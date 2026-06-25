@@ -23,11 +23,20 @@ static adc_sample_chan_t pin_to_adc_chan(board_gpio_pin_t pin)
 
 void platform_init(void)
 {
+    /* 32k oscillator for the RTC used by the LoRa radio timers. */
+    rcc_enable_oscillator(RCC_OSC_XO32K, true);
+
     rcc_set_adc_clk_source(RCC_ADC_CLK_SOURCE_RCO48M);
     rcc_enable_peripheral_clk(RCC_PERIPHERAL_GPIOA, true);
     rcc_enable_peripheral_clk(RCC_PERIPHERAL_GPIOB, true);
+    /* GPIOD hosts the RA-08H RF antenna-switch control (see lora_config.h). */
+    rcc_enable_peripheral_clk(RCC_PERIPHERAL_GPIOD, true);
     rcc_enable_peripheral_clk(RCC_PERIPHERAL_ADC, true);
     rcc_enable_peripheral_clk(RCC_PERIPHERAL_UART0, true);
+    rcc_enable_peripheral_clk(RCC_PERIPHERAL_PWR, true);
+    rcc_enable_peripheral_clk(RCC_PERIPHERAL_RTC, true);
+    rcc_enable_peripheral_clk(RCC_PERIPHERAL_LORA, true);
+    rcc_enable_peripheral_clk(RCC_PERIPHERAL_SAC, true);
 
     platform_uart_init();
     platform_gpio_init();

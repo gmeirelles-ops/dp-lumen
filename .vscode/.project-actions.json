@@ -1,0 +1,28 @@
+{
+    "actions": [
+        {
+            "text": "🔨 Build",
+            "command": "cd sdk/ra08h-dp-lumen && make",
+            "tooltip": "Compila o firmware dp-lumen (RA-08H / Tremo SDK)",
+            "color": "#ffa500"
+        },
+        {
+            "text": "🧹 Clean",
+            "command": "cd sdk/ra08h-dp-lumen && make clean",
+            "tooltip": "Limpa os artefatos de build",
+            "color": "#ffffff"
+        },
+        {
+            "text": "🚀 Flash",
+            "command": "cd sdk/ra08h-dp-lumen && make flash",
+            "tooltip": "Grava no RA-08H (placa em modo BOOT/download)",
+            "color": "#00ff00"
+        },
+        {
+            "text": "$(terminal) Monitor",
+            "command": "python3 -m serial.tools.miniterm /dev/ttyUSB0 115200",
+            "tooltip": "Abrir monitor serial de diagnóstico (J2, 115200 baud)",
+            "color": "#00bfff"
+        }
+    ]
+}

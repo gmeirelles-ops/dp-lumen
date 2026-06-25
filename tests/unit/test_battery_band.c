@@ -29,6 +29,13 @@ int main(void)
     ASSERT(battery_band_from_mv(5400, &hyst) == BATTERY_BAND_CRITICAL);
     ASSERT(battery_band_from_mv(5000, &hyst) == BATTERY_BAND_CRITICAL);
 
+    /* battery_pct_from_mv: linear 5.4 V = 0 %, 6.7 V = 100 %, clamped. */
+    ASSERT(battery_pct_from_mv(5000) == 0);
+    ASSERT(battery_pct_from_mv(5400) == 0);
+    ASSERT(battery_pct_from_mv(6050) == 50);
+    ASSERT(battery_pct_from_mv(6700) == 100);
+    ASSERT(battery_pct_from_mv(7000) == 100);
+
     printf("test_battery_band: OK\n");
     return 0;
 }

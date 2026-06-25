@@ -46,3 +46,17 @@ battery_band_t battery_band_from_mv(uint32_t vbat_mv, battery_band_hysteresis_t 
     }
     return BATTERY_BAND_NORMAL;
 }
+
+uint8_t battery_pct_from_mv(uint32_t vbat_mv)
+{
+    if (vbat_mv <= BATTERY_MV_CRITICAL) {
+        return 0;
+    }
+    if (vbat_mv >= BATTERY_MV_CHARGED) {
+        return 100;
+    }
+
+    uint32_t span = BATTERY_MV_CHARGED - BATTERY_MV_CRITICAL;
+    uint32_t pct = ((vbat_mv - BATTERY_MV_CRITICAL) * 100u) / span;
+    return (uint8_t)pct;
+}

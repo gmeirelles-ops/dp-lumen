@@ -163,16 +163,21 @@ nível de bateria; confirmar que telemetria reflete o estado em tempo aceitável
 - **FR-016**: O carregamento da bateria com rede presente é realizado pelo circuito
   analógico; o firmware MUST NOT controlar o carregador.
 
-**Telemetria LoRa (uplink apenas)**
+**Telemetria LoRa (uplink apenas — LoRa P2P)**
 
-- **FR-017**: O sistema MUST transmitir telemetria contendo estado de rede
-  (presente/ausente) e faixa de bateria (carregada, normal, fraca, proteção).
-- **FR-018**: O sistema MUST retransmitir telemetria quando o modo operacional
-  ou a faixa de bateria mudar.
+A telemetria usa **LoRa P2P cru** (sem LoRaWAN/join), wire-compatível com o gateway
+`ra08h-dp-comm`. Detalhes de rádio, framing e payload em
+[`contracts/telemetry-lora.md`](./contracts/telemetry-lora.md).
+
+- **FR-017**: O sistema MUST transmitir telemetria contendo `product_id`
+  (provisório `4`), presença de rede (AC presente/ausente), porcentagem da bateria
+  (0–100 %) e estado da carga das lâmpadas (ligado/desligado).
+- **FR-018**: O sistema MUST retransmitir telemetria quando o modo operacional,
+  a faixa de bateria, o estado da carga ou a presença de rede mudar.
 - **FR-019**: O sistema MUST transmitir telemetria periódica em intervalo máximo
   de 15 minutos durante operação normal (heartbeat).
 - **FR-020**: Comandos remotos via rádio MUST NOT alterar o comportamento do
-  dispositivo nesta versão (escopo excluído).
+  dispositivo nesta versão (rádio configurado apenas para transmissão).
 
 **Diagnóstico**
 
@@ -187,8 +192,9 @@ nível de bateria; confirmar que telemetria reflete o estado em tempo aceitável
 - **BatteryBand**: faixa derivada de `V_BATT_ADC` — `Charged` (≥ 6.7V), `Normal`
   (> 5.8V e < 6.7V), `Low` (≤ 5.8V e > 5.4V), `Critical` (≤ 5.4V).
 - **LoadState**: estado das lâmpadas principais — `On` ou `Off`.
-- **TelemetrySnapshot**: instantâneo enviado por uplink — modo de rede, faixa de
-  bateria, estado das lâmpadas, indicadores ativos.
+- **TelemetrySnapshot**: instantâneo enviado por uplink — `product_id`, AC presente,
+  porcentagem da bateria (0–100 %), estado da carga. Codificado em 3 bytes de payload
+  conforme `contracts/telemetry-lora.md`.
 
 ## Success Criteria *(mandatory)*
 
@@ -222,6 +228,12 @@ nível de bateria; confirmar que telemetria reflete o estado em tempo aceitável
   em relação à constituição v2.0.0 que previa apenas toggle manual).
 - `led.load` desligado em modo bateria para economia de energia.
 - Telemetria LoRa incluída nesta feature; comandos remotos explicitamente excluídos.
+- Telemetria usa **LoRa P2P cru** (não LoRaWAN), compatível com o gateway
+  `ra08h-dp-comm` (mesmos parâmetros de rádio e framing checksum + `crypt`).
+- `product_id = 4` é **provisório** (ainda não definido); não há identificador único
+  por dispositivo nesta versão.
+- Porcentagem da bateria derivada de VBAT por mapeamento linear (5.4 V = 0 %,
+  6.7 V = 100 %), aproximação aceita para monitoramento de frota.
 - Wake de hibernação profunda: retorno de rede **ou** tensão de bateria > 5.6V.
 - Intervalo de heartbeat de telemetria: 15 minutos quando não há mudança de estado.
 - Instaladores e técnicos de manutenção são os usuários primários dos botões de
@@ -230,7 +242,6 @@ nível de bateria; confirmar que telemetria reflete o estado em tempo aceitável
 ## Out of Scope
 
 - Comandos remotos LoRa (downlink de controle de lâmpadas ou configuração).
-- Provisionamento de rede LoRaWAN, chaves, join e parâmetros RF (detalhar em
-  planejamento).
-- Migração do toolchain de firmware e implementação de código.
+- LoRaWAN (join, chaves, network server) — esta versão usa LoRa P2P cru.
+- Identificador único por dispositivo na telemetria (apenas `product_id` nesta versão).
 - Controle do circuito carregador analógico (LM317 / VIPer22).

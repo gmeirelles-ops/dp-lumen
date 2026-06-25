@@ -1,0 +1,38 @@
+{
+    "name": "RA-08H dp-lumen Firmware",
+    "image": "ra08h-env",
+    "updateRemoteUserUID": false,
+    "runArgs": [
+        "--hostname", "ra08h-dp-lumen",
+        "--privileged",
+        "-v", "/dev:/dev"
+    ],
+    "workspaceFolder": "/app",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
+    "remoteUser": "devuser",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "julynx.project-actions"
+            ],
+            "settings": {
+                "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
+                "C_Cpp.default.includePath": [
+                    "${workspaceFolder}/**",
+                    "/sdk/**"
+                ],
+                "C_Cpp.default.cStandard": "c11",
+                "C_Cpp.intelliSenseEngine": "disabled",
+                "C_Cpp.autocomplete": "disabled",
+                "C_Cpp.errorSquiggles": "disabled",
+                "clangd.arguments": [
+                    "--background-index",
+                    "--clang-tidy"
+                ]
+            }
+        }
+    }
+}

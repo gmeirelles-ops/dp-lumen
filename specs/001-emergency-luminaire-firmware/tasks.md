@@ -4,7 +4,7 @@
 
 **Prerequisites**: [plan.md](./plan.md), [spec.md](./spec.md), [research.md](./research.md), [data-model.md](./data-model.md), [contracts/](./contracts/), [quickstart.md](./quickstart.md)
 
-**Implementation scope**: User Story 1 (P1) + User Story 2 (P2) + UART diagnostics. User Story 3 (P3) LoRa is **deferred** — see Phase Future below.
+**Implementation scope**: User Story 1 (P1) + User Story 2 (P2) + UART diagnostics (done) + flashing tooling (Phase 6) + User Story 3 (P3) LoRa P2P telemetry (Phase 7).
 
 **Organization**: Tasks grouped by user story for independent implementation and testing.
 
@@ -33,7 +33,8 @@ Phase 1 (Setup)
             └── Phase 3 (US1 — MVP)
                     └── Phase 4 (US2)
                             └── Phase 5 (Polish)
-Phase Future (P3 LoRa) — no tasks; not on critical path
+Phase 6 (Tooling) — independent of P3; can land anytime after Setup
+Phase 7 (P3 LoRa) — depends on Foundational + US1/US2 state machine
 ```
 
 US2 extends `luminaire_sm.c` built in US1; US1 is independently testable after Foundational (QS-03–QS-07).
@@ -57,7 +58,9 @@ T033 test_luminaire_sm.c (mains cases)  ||  T035 uart_diag.c enhancements
 2. **MVP = Phase 3 (US1)** — emergency battery operation delivers core safety value.
 3. Add **Phase 4 (US2)** for mains mode, test button, and charge indicators.
 4. **Phase 5** polish and hardware validation notes.
-5. **Do not** implement P3 LoRa in this task list.
+5. **Phase 6** flashing tooling (devcontainer + status-bar buttons) — independent.
+6. **Phase 7** P3 LoRa P2P telemetry — pure codec first (host-tested), then radio
+   transport, main-loop integration, and Makefile/LoRa-SDK wiring.
 
 ---
 
@@ -144,19 +147,39 @@ T033 test_luminaire_sm.c (mains cases)  ||  T035 uart_diag.c enhancements
 
 ---
 
-## Phase Future: P3 LoRa Telemetry (Deferred)
+## Phase 6: Flashing Tooling (parity with ra08h-dp-comm)
 
-**Not in current implementation.** No tasks below — do not create `components/connectivity/` in this phase.
+**Purpose**: One-click Build/Flash/Monitor like the `ra08h-dp-comm` workflow. Independent of P3 (can be done first).
 
-| Item | Status |
-|---|---|
-| US3 Telemetria LoRa (spec.md) | Deferred |
-| FR-017, FR-018, FR-019, SC-005 | Deferred |
-| Target contract | [contracts/telemetry-lora.md](./contracts/telemetry-lora.md) |
-| Domain hook | `TelemetrySnapshot` in data-model.md — populate only; no RF transmit |
-| Remote commands | Out of scope per spec |
+- [ ] T039 Add `.devcontainer/devcontainer.json` (image `ra08h-env`, `--privileged`, `-v /dev:/dev`, SDK at `/sdk`, recommend extensions `julynx.project-actions` + `llvm-vs-code-extensions.vscode-clangd`)
+- [ ] T040 [P] Add `.vscode/.project-actions.json` with buttons 🔨 Build (`make`), 🧹 Clean (`make clean`), 🚀 Flash (`make flash`), 📺 Monitor (`python3 -m serial.tools.miniterm /dev/ttyUSB0 115200`), `cwd` = `sdk/ra08h-dp-lumen`
+- [ ] T041 [P] Update `.vscode/tasks.json` — add mirrored Build/Clean/Flash/Monitor tasks (firmware) while keeping the existing host-stub `cmake`/`ctest` tasks under distinct labels
+- [ ] T042 [P] Set `project-actions.configFileName = ".vscode/.project-actions.json"` in `.vscode/settings.json` (preserve existing keys; do not break host build)
+- [ ] T043 Verify `make` / `make clean` / `make flash` targets resolve via `sdk/ra08h-dp-lumen/Makefile` + `common.mk`; document BOOT/RST download steps in `README.md`
 
-Implement in a future feature after P1+P2 are validated on hardware.
+---
+
+## Phase 7: User Story 3 — LoRa P2P Telemetry (Priority: P3)
+
+**Goal**: Uplink-only LoRa P2P, wire-compatible with the `ra08h-dp-comm` gateway. Payload `[product_id=4][status_flags][battery_pct]`; triggers on change + 15 min heartbeat; no downlink; no TX in deep sleep.
+
+**Independent Test**: quickstart.md QS-09 (gateway reception) + host codec unit tests.
+
+**Contract**: [contracts/telemetry-lora.md](./contracts/telemetry-lora.md) — radio params + on-air framing are authoritative.
+
+### Implementation
+
+- [ ] T044 [P] [US3] Add pure `battery_pct_from_mv()` to `components/domain/battery_band.c`/`.h` (linear 5.4 V=0 %, 6.7 V=100 %, clamp 0..100)
+- [ ] T045 [US3] Add `components/domain/telemetry.c`/`.h` — `telemetry_snapshot_t {product_id, ac_present, load_on, battery_pct}`, build from `luminaire_state_t`, plus `telemetry_changed()` (mode/band/load/mains) helper (pure, no radio headers)
+- [ ] T046 [US3] Add `components/protocol/telemetry_codec.c`/`.h` — `telemetry_encode()`, `checksum_calc()` (two's complement), `crypt()` (bitwise NOT) producing the 4-byte frame; copy semantics verbatim from the gateway
+- [ ] T047 [P] [US3] Add `components/protocol/CMakeLists.txt` and register `protocol` in `components/CMakeLists.txt` (host-buildable, no radio)
+- [ ] T048 [US3] Add `components/connectivity/lora_radio.c`/`.h` + `lora_config.h` (mirror reference RF-switch pins `GPIOD_11`/`GPIOA_10`): `lora_radio_init()` (Radio.Init, SetTxConfig, SetChannel 915e6), `lora_radio_send()`, `lora_radio_process()` (`Radio.IrqProcess()`); guard the whole TU with `#ifndef DP_LUMEN_PLATFORM_STUB`; **do not** `NVIC_SystemReset` on TxDone/timeout
+- [ ] T049 [US3] Enable LoRa + GPIOA/GPIOD peripheral clocks needed by the SX126x board driver in `components/platform/ra08h/platform_init.c` (per reference `main.c`)
+- [ ] T050 [US3] Integrate in `main/main.c` 50 ms loop: build snapshot → on change or 15 min heartbeat call `lora_radio_send()`; call `lora_radio_process()` each tick; skip TX in `DeepSleepProtection`
+- [ ] T051 [US3] Extend `sdk/ra08h-dp-lumen/Makefile`: add `components/connectivity` + `components/protocol` sources/includes; add LoRa SDK sources (`lora/system`, `lora/system/crypto`, `lora/radio/sx126x`, `lora/driver`) + include paths; add `-DUSE_MODEM_LORA -DREGION_CN470`; link `libcrypto.a`
+- [ ] T052 [P] [US3] Add `tests/unit/test_telemetry_codec.c` — assert encode + checksum + crypt produce the exact 4-byte frame the gateway decodes; add battery_pct boundary cases; register in `tests/unit/CMakeLists.txt`
+- [ ] T053 [US3] Run device build (`make`) and host build/tests (`ctest`); record pass/fail in implementation notes
+- [ ] T054 [US3] Document pending hardware validation for QS-09 (gateway reception, on-change/heartbeat timing, RF-switch correctness) in the feature implementation summary
 
 ---
 
@@ -169,7 +192,9 @@ Implement in a future feature after P1+P2 are validated on hardware.
 | US1 (P1) | T019–T028 | 10 |
 | US2 (P2) | T029–T035 | 7 |
 | Polish | T036–T038 | 3 |
-| **Total** | T001–T038 | **38** |
-| P3 Future | — | 0 implementation tasks |
+| Tooling | T039–T043 | 5 |
+| US3 (P3) LoRa | T044–T054 | 11 |
+| **Total** | T001–T054 | **54** |
 
-**MVP scope**: Complete through Phase 3 (T028) for emergency battery operation.
+**MVP scope**: Complete through Phase 3 (T028) for emergency battery operation. P3
+LoRa (Phase 7) adds fleet telemetry; Phase 6 tooling can land independently.

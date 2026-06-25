@@ -43,6 +43,24 @@ Se `Connect failed: Read response header timeout`: porta errada, placa não em B
 # sdk/ra08h-dp-lumen/out/dp-lumen.bin
 ```
 
+### Botões na barra de status (Build / Flash / Monitor)
+
+Igual ao fluxo do `ra08h-dp-comm`: com o devcontainer (`.devcontainer`, imagem
+`ra08h-env`, SDK em `/sdk`) e a extensão `julynx.project-actions`, a barra inferior
+mostra **🔨 Build**, **🧹 Clean**, **🚀 Flash** e **Monitor** (config em
+`.vscode/.project-actions.json`, espelhados em `.vscode/tasks.json`). Build/Clean/Flash
+rodam `make` em `sdk/ra08h-dp-lumen`; o Monitor abre `miniterm` em **115200** (UART de
+diagnóstico J2, diferente dos 9600 do `ra08h-dp-comm`). O flash continua exigindo a
+placa em modo BOOT/download (ver acima) e autorização explícita.
+
+### Telemetria LoRa P2P (P3)
+
+Uplink-only, compatível com o gateway `ra08h-dp-comm` (915 MHz, BW500, SF7, CR4/5,
+22 dBm). Payload de 3 bytes `[product_id=4][flags AC/carga][bateria %]`, com checksum
++ `crypt` idênticos ao gateway. Envio por mudança (modo/faixa/carga/rede) e heartbeat
+de 15 min; sem transmissão em hibernação. Contrato:
+`specs/001-emergency-luminaire-firmware/contracts/telemetry-lora.md`.
+
 **Problemas comuns**
 
 | Erro | Causa | Correção |

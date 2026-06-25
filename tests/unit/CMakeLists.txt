@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(DOMAIN_DIR ${CMAKE_SOURCE_DIR}/components/domain)
+set(PROTOCOL_DIR ${CMAKE_SOURCE_DIR}/components/protocol)
 set(DRIVERS_DIR ${CMAKE_SOURCE_DIR}/components/drivers)
 set(PLATFORM_DIR ${CMAKE_SOURCE_DIR}/components/platform/ra08h)
 
@@ -37,3 +38,12 @@ target_link_libraries(test_luminaire_sm PRIVATE test_support)
 target_include_directories(test_luminaire_sm PRIVATE ${DOMAIN_DIR} ${DRIVERS_DIR} ${PLATFORM_DIR})
 target_compile_definitions(test_luminaire_sm PRIVATE DP_LUMEN_PLATFORM_STUB=1)
 add_test(NAME test_luminaire_sm COMMAND test_luminaire_sm)
+
+add_executable(test_telemetry_codec test_telemetry_codec.c
+    ${PROTOCOL_DIR}/telemetry_codec.c
+    ${DOMAIN_DIR}/telemetry.c
+    ${DOMAIN_DIR}/battery_band.c
+)
+target_include_directories(test_telemetry_codec PRIVATE ${PROTOCOL_DIR} ${DOMAIN_DIR})
+target_compile_definitions(test_telemetry_codec PRIVATE DP_LUMEN_PLATFORM_STUB=1)
+add_test(NAME test_telemetry_codec COMMAND test_telemetry_codec)

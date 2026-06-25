@@ -2,32 +2,58 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "dp-lumen: cmake configure",
+            "label": "🔨 Build",
+            "type": "shell",
+            "command": "make",
+            "options": { "cwd": "${workspaceFolder}/sdk/ra08h-dp-lumen" },
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "🧹 Clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": { "cwd": "${workspaceFolder}/sdk/ra08h-dp-lumen" },
+            "problemMatcher": []
+        },
+        {
+            "label": "🚀 Flash",
+            "type": "shell",
+            "command": "make flash",
+            "options": { "cwd": "${workspaceFolder}/sdk/ra08h-dp-lumen" },
+            "problemMatcher": []
+        },
+        {
+            "label": "📺 Monitor",
+            "type": "shell",
+            "command": "python3 -m serial.tools.miniterm /dev/ttyUSB0 115200",
+            "isBackground": false,
+            "presentation": { "focus": true, "panel": "new" },
+            "problemMatcher": []
+        },
+        {
+            "label": "host: cmake configure",
             "type": "shell",
             "command": "cmake -B build -S .",
             "options": { "cwd": "${workspaceFolder}" },
-            "group": "build"
+            "group": "build",
+            "problemMatcher": []
         },
         {
-            "label": "dp-lumen: cmake build (stub)",
+            "label": "host: cmake build (stub)",
             "type": "shell",
             "command": "cmake --build build",
             "options": { "cwd": "${workspaceFolder}" },
-            "dependsOn": "dp-lumen: cmake configure",
-            "group": { "kind": "build", "isDefault": true }
+            "dependsOn": "host: cmake configure",
+            "problemMatcher": []
         },
         {
-            "label": "dp-lumen: unit tests",
+            "label": "host: unit tests",
             "type": "shell",
             "command": "ctest --test-dir build --output-on-failure",
             "options": { "cwd": "${workspaceFolder}" },
-            "dependsOn": "dp-lumen: cmake build (stub)"
-        },
-        {
-            "label": "RA-08H: build uart_printf example",
-            "type": "shell",
-            "command": "./scripts/build-ra08h-example.sh",
-            "options": { "cwd": "${workspaceFolder}" }
+            "dependsOn": "host: cmake build (stub)",
+            "problemMatcher": []
         }
     ]
 }

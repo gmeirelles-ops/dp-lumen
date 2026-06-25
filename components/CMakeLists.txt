@@ -1,4 +1,6 @@
 add_subdirectory(domain)
+add_subdirectory(protocol)
+add_subdirectory(connectivity)
 add_subdirectory(drivers)
 add_subdirectory(platform)
 add_subdirectory(diag)

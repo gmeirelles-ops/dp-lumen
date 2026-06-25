@@ -78,17 +78,42 @@ scenario 6). Clearing: mains lost, or `btn.test` toggles off, or explicit timeou
 | `led_battery` | bool | Derived indicator |
 | `led_load` | bool | Derived indicator |
 
-### TelemetrySnapshot (P3 — deferred)
+### BatteryPercent (P3)
+
+Derived from VBAT for telemetry. Pure function
+`battery_pct_from_mv(uint32_t vbat_mv) -> uint8_t`:
+
+```text
+battery_pct = clamp_0_100( (vbat_mv - 5400) * 100 / 1300 )
+```
+
+5.4 V → 0 %, 6.7 V → 100 % (linear; lead-acid approximation).
+
+### TelemetrySnapshot (P3 — active, LoRa P2P uplink)
 
 | Field | Type | Notes |
 |---|---|---|
-| `mains_present` | bool | **Transmission deferred** |
-| `battery_band` | BatteryBand | |
-| `load_state` | LoadState | |
-| `mode` | OperatingMode | |
-| `device_id` | uint32 | Future provisioning |
+| `product_id` | uint8 | Provisional `4` (not final) |
+| `ac_present` | bool | Mains present (status_flags bit0) |
+| `load_on` | bool | Lamps on (status_flags bit1) |
+| `battery_pct` | uint8 | 0–100 %, from `battery_pct_from_mv()` |
 
-Populated by domain on change; `connectivity/` will send in P3.
+Built by `components/domain/telemetry` from `LuminaireState`. A change-detection
+helper compares the new snapshot's trigger fields (mode/band/load/mains) against the
+last sent snapshot to decide on-change transmission.
+
+#### On-air frame (see contracts/telemetry-lora.md)
+
+```text
+payload[3] = { product_id, status_flags, battery_pct }   // status_flags: b0=AC, b1=load
+checksum   = ~(sum(payload)) + 1                          // checksum_calc
+frame[4]   = crypt( [checksum, payload...] )              // crypt = bitwise NOT each byte
+Radio.Send(frame, 4)                                      // wire-compatible with gateway
+```
+
+`telemetry_encode()` + `checksum_calc()` + `crypt()` live in
+`components/protocol/telemetry_codec` (pure, host-tested). `connectivity/lora_radio`
+sends; no domain coupling to the radio SDK.
 
 ## State Transitions
 
@@ -135,3 +160,11 @@ void luminaire_sm_tick(luminaire_state_t *st, const luminaire_inputs_t *in);
 ```
 
 `battery_band_from_mv(uint32_t vbat_mv)` — pure function, unit-tested.
+`battery_pct_from_mv(uint32_t vbat_mv)` — pure function, unit-tested (P3 telemetry).
+
+```c
+// P3 telemetry (pure, host-tested)
+size_t telemetry_encode(const telemetry_snapshot_t *s, uint8_t *out, size_t cap);
+uint8_t checksum_calc(const uint8_t *data, uint8_t len);
+void    crypt(uint8_t *data, uint16_t len);
+```

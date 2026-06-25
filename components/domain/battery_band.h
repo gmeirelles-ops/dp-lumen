@@ -24,4 +24,10 @@ void battery_band_hysteresis_init(battery_band_hysteresis_t *hyst);
 
 battery_band_t battery_band_from_mv(uint32_t vbat_mv, battery_band_hysteresis_t *hyst);
 
+/* Battery charge percentage for telemetry (pure).
+ * Linear approximation, clamped to [0,100]:
+ *   5.4 V (critical) -> 0 %, 6.7 V (charged) -> 100 %.
+ * Lead-acid SOC is non-linear; this is a fleet-monitoring approximation. */
+uint8_t battery_pct_from_mv(uint32_t vbat_mv);
+
 #endif

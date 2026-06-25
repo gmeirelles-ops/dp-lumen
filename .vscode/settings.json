@@ -1,7 +1,11 @@
 {
-    "cmake.buildDirectory": "${workspaceFolder}/build",
-    "cmake.configureOnOpen": true,
-    "idf.showOnboardingOnInit": false,
-    "idf.flashType": "UART",
-    "idf.port": "/dev/ttyUSB0"
+  "project-actions.configFileName": ".vscode/.project-actions.json",
+  "files.associations": {
+    "*.h": "c"
+  },
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.configureOnOpen": true,
+  "idf.showOnboardingOnInit": false,
+  "idf.flashType": "UART",
+  "idf.port": "/dev/ttyUSB0"
 }
