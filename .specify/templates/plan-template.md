@@ -40,7 +40,21 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with `.specify/memory/constitution.md` (dp-lumen v2.0.0):
+
+- [ ] **Hardware contracts**: GPIO mapping (RA-08H U6), ADC dividers and connector
+      pinout unchanged unless explicitly justified in spec/plan/tasks.
+- [ ] **Mode separation**: mains vs battery-only behavior respects `btn.test` /
+      `btn.power` mutual exclusion and `led.status` rules.
+- [ ] **Load switching**: LED1/LED2 controlled only via `SPOTLIGHT.EN` (IO14).
+- [ ] **Charger**: firmware does not control analog battery charger hardware.
+- [ ] **Architecture**: domain logic separated from ASR6601 SDK / drivers.
+- [ ] **LoRa scope**: MVP limited to ADC + switching unless spec extends telemetry.
+- [ ] **Build gate**: RA-08H / ASR6601 toolchain build defined (not ESP-IDF).
+- [ ] **Hardware validation**: ADC, buttons, load switching and mode transitions
+      have real-device test steps when behavior changes.
+
+Document any justified violations in **Complexity Tracking** below.
 
 ## Project Structure
 

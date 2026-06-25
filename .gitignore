@@ -15,6 +15,8 @@ venv/
 
 # ESP-IDF build artifacts
 build/
+Ai-Thinker-LoRaWAN-Ra-08/
+sdk/ra08h-dp-lumen/out/
 managed_components/
 sdkconfig
 sdkconfig.old

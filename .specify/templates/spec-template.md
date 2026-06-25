@@ -83,6 +83,13 @@
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right functional requirements.
+
+  dp-lumen features MUST declare when applicable:
+  - Operating mode (mains-present vs battery-only) and transitions.
+  - ADC thresholds for VBAT (low-battery 10%, charged) and mains detection.
+  - Button debounce and ignored-button behavior per mode.
+  - Load switching via SPOTLIGHT.EN and safe state on mode change.
+  - LoRa scope: MVP (ADC + switching) vs future telemetry extension.
 -->
 
 ### Functional Requirements

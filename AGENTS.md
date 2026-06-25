@@ -1,8 +1,21 @@
 # AGENTS.md
 
+## Plataforma dp-lumen
+
+Este produto usa o módulo **RA-08H** (MCU ASR6601) conforme hardware
+`hw-dp-lumen/04. Projeto` v0.0.1 — **não ESP32**. A constituição em
+`.specify/memory/constitution.md` (v2.0.0) é a fonte de verdade para GPIO,
+modos operacionais (rede vs bateria), bateria UP645 6V e escopo LoRa.
+
+O scaffold ESP-IDF (`esp32s3`) no repositório é legado do template e deve ser
+migrado antes da implementação de features. Regras ESP-IDF/ESP-ADF abaixo
+aplicam-se apenas se o projeto passar a incluir componente ESP32.
+
 ## Projeto
 
-Este repositório contém firmware IoT em C/C++ para dispositivos ESP32-family usando ESP-IDF e, quando aplicável, ESP-ADF.
+Este repositório contém firmware em C/C++ para a luminária de emergência
+dp-lumen (RA-08H / ASR6601) e, quando aplicável no futuro, componentes
+ESP32-family com ESP-IDF.
 
 O objetivo principal é manter firmware confiável em hardware real, diagnosticável em campo, seguro, testável e compatível com dispositivos já provisionados.
 
@@ -801,4 +814,5 @@ Ao terminar uma alteração, responder com:
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
+at specs/001-emergency-luminaire-firmware/plan.md
 <!-- SPECKIT END -->

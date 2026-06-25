@@ -26,6 +26,17 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
+## dp-lumen Task Categories
+
+When generating tasks for dp-lumen firmware, include explicit groups when relevant:
+
+- **`platform/`** — RA-08H / ASR6601 SDK init, clock, UART, build integration.
+- **`drivers/gpio`** — buttons, indicator LEDs, `SPOTLIGHT.EN` (Q5).
+- **`drivers/adc`** — VBAT and mains (+12V) sensing, calibration constants.
+- **`domain/state-machine`** — mains vs battery modes, button policy, SOC bands.
+- **`connectivity/lora`** — only when spec extends beyond MVP ADC + switching.
+- **`hardware-validation`** — real-device steps for ADC, buttons, load and modes.
+
 <!--
   ============================================================================
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.

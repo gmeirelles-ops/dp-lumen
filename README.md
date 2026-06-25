@@ -1,6 +1,59 @@
-# ESP32 Firmware Template
+# dp-lumen
 
-Template para criar projetos ESP32-family com ESP-IDF, opção de ESP-ADF, GitHub Spec Kit e skills locais para Codex e Cursor.
+Firmware para a luminária de emergência **dp-lumen** (Diponto): bateria UP645 6V,
+carga LED1/LED2 @ 6V, MCU **RA-08H** (ASR6601).
+
+Repositório criado a partir do [esp32-template](https://github.com/diponto/esp32-template.git), com GitHub Spec Kit e skills locais para Codex e Cursor.
+
+Hardware de referência: `hw-dp-lumen/04. Projeto` (KiCad rev v0.0.1).
+
+## Estado do projeto
+
+| Item | Valor |
+|---|---|
+| Target | **RA-08H** (ASR6601) |
+| SDK | ASR6601 / Ai-Thinker RA-08H (migração pendente) |
+| Hardware | `hw-dp-lumen/04. Projeto` v0.0.1 |
+| Constituição | v2.0.0 (2026-06-24) |
+| Remoto | `git@github.com:gmeirelles-ops/dp-lumen.git` |
+| Firmware | P1+P2 implementados (stub RA-08H); testes de domínio no host |
+
+> **Nota:** o build oficial usa **CMake + RA-08H SDK** (`RA08H_SDK_PATH`). Sem o SDK,
+> o projeto compila em modo **stub** com `gcc` para validação de lógica e testes unitários.
+
+## Build (RA-08H / stub)
+
+```bash
+# Stub (host): lógica + testes — não gera binário para flash no RA-08H
+cmake -B build -S .
+cmake --build build
+ctest --test-dir build --output-on-failure
+
+# Flash dp-lumen no RA-08H (placa em modo BOOT — ver abaixo)
+./scripts/flash-dp-lumen.sh
+# ou: SERIAL_PORT=/dev/ttyACM0 ./scripts/flash-dp-lumen.sh
+```
+
+**Modo download (obrigatório para flash):** segurar **BOOT** (GPIO2 / `LORA.BOOT`), pulsar **RST**, soltar RST, depois rodar o flash. O adaptador USB‑serial precisa ligar **DTR→BOOT** e **RTS→RST** (como no J2), ou fazer isso manualmente.
+
+Se `Connect failed: Read response header timeout`: porta errada, placa não em BOOT, ou cabo só com TX/RX.
+
+```bash
+# Binário gerado:
+# sdk/ra08h-dp-lumen/out/dp-lumen.bin
+```
+
+**Problemas comuns**
+
+| Erro | Causa | Correção |
+|---|---|---|
+| `stdint-gcc.h: No such file` | `gcc-arm-none-eabi` 14+ no PATH | `./scripts/patch-ai-thinker-sdk.sh` |
+| `common.mk: Arquivo inexistente` | `source build/envsetup.sh` fora da raiz do SDK | `cd Ai-Thinker-LoRaWAN-Ra-08` antes do `source` |
+| `ninja: build.ninja not found` | Extensão ESP-IDF no VS Code | Use task **dp-lumen: cmake build (stub)** ou `cmake --build build` |
+| `RA08H_SDK_PATH=/caminho/para/...` | placeholder literal | exporte o path real do clone |
+
+
+Não executar flash/erase sem autorização explícita (AGENTS.md).
 
 A ideia deste template é simples: você conduz o projeto pelos comandos do Spec Kit; o agente no Codex ou no Cursor executa inspeção, Git, geração de arquivos, build e validações. Você não precisa operar manualmente os scripts `.specify/`, comandos Git ou `idf.py`, salvo quando quiser conferir algo por conta própria.
 

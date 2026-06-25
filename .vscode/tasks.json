@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "dp-lumen: cmake configure",
+            "type": "shell",
+            "command": "cmake -B build -S .",
+            "options": { "cwd": "${workspaceFolder}" },
+            "group": "build"
+        },
+        {
+            "label": "dp-lumen: cmake build (stub)",
+            "type": "shell",
+            "command": "cmake --build build",
+            "options": { "cwd": "${workspaceFolder}" },
+            "dependsOn": "dp-lumen: cmake configure",
+            "group": { "kind": "build", "isDefault": true }
+        },
+        {
+            "label": "dp-lumen: unit tests",
+            "type": "shell",
+            "command": "ctest --test-dir build --output-on-failure",
+            "options": { "cwd": "${workspaceFolder}" },
+            "dependsOn": "dp-lumen: cmake build (stub)"
+        },
+        {
+            "label": "RA-08H: build uart_printf example",
+            "type": "shell",
+            "command": "./scripts/build-ra08h-example.sh",
+            "options": { "cwd": "${workspaceFolder}" }
+        }
+    ]
+}

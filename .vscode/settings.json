@@ -1,0 +1,7 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureOnOpen": true,
+    "idf.showOnboardingOnInit": false,
+    "idf.flashType": "UART",
+    "idf.port": "/dev/ttyUSB0"
+}
